@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+
+struct Edge {
+    int src, dest, weight;
+};
+
+class Graph {
+    int A; 
+    vector<vector<int>> adjMatrix;
+
+public:
+    Graph(int vertices) {
+        A = vertices;
+        adjMatrix.resize(A, vector<int>(A, 0));
+    }
+
+    void addEdge(int src, int dest, int weight) {
+        adjMatrix[src][dest] = weight;
+        adjMatrix[dest][src] = weight;
+    }
+
+    int findMinimumKey(vector<int>& key, vector<bool>& mstSet) {
+        int minimumKey = INT_MAX, minIndex = -1;
+        for (int v = 0; v < A; ++v) {
+            if (!mstSet[v] && key[v] < minimumKey) {
+                minimumKey = key[v];
+                minIndex = v;
+            }
+        }
+        return minIndex;
+    }
+
+    void printMST(vector<int>& parent) {
+        cout << "Edge \tWeight\n";
+        for (int v = 1; v < A; ++v) {
+            cout << parent[v] << " - " << v << "\t" << adjMatrix[v][parent[v]] << "\n";
+        }
+    }
+
+    void priNMST(int startNode) {
+        vector<int> key(A, INT_MAX);
+        vector<bool> mstSet(A, false);
+        vector<int> parent(A, -1);
+
+        key[startNode] = 0;
+
+        for (int count = 0; count < A - 1; ++count) {
+            int u = findMinimumKey(key, mstSet);
+            mstSet[u] = true;
+
+            for (int v = 0; v < A; ++v) {
+                if (adjMatrix[u][v] && !mstSet[v] && adjMatrix[u][v] < key[v]) {
+                    parent[v] = u;
+                    key[v] = adjMatrix[u][v];
+                }
+            }
+        }
+
+        printMST(parent);
+    }
+};
+
+int main() {
+    int A = 6;
+    Graph g(A);
+
+    
+    g.addEdge(0, 1, 3);
+    g.addEdge(1, 2, 2);
+    g.addEdge(1, 4, 10);
+    g.addEdge(0, 5, 1);
+    g.addEdge(3, 1, 1);
+    g.addEdge(2, 5, 5);
+    g.addEdge(2, 3, 3);
+    g.addEdge(3, 4, 5);
+    g.addEdge(4, 5, 4);
+
+    int startNode = 3;
+    g.priNMST(startNode);
+
+    return 0;
+}
